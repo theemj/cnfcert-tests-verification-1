@@ -27,7 +27,8 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 		err := globalhelper.DefineTnfConfig(
 			[]string{netparameters.TestNetworkingNameSpace},
 			[]string{netparameters.TestPodLabel},
-			[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi})
+			[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi},
+			[]string{})
 		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
 
 		By("Start test")
@@ -51,7 +52,8 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 		err := globalhelper.DefineTnfConfig(
 			[]string{netparameters.TestNetworkingNameSpace},
 			[]string{netparameters.TestPodLabel},
-			[]string{affiliatedcertparameters.UncertifiedContainerFooBar})
+			[]string{affiliatedcertparameters.UncertifiedContainerFooBar},
+			[]string{})
 		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
 
 		By("Start test")
@@ -76,7 +78,8 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 			[]string{netparameters.TestNetworkingNameSpace},
 			[]string{netparameters.TestPodLabel},
 			[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi,
-				affiliatedcertparameters.CertifiedContainerRhel7OpenJdk})
+				affiliatedcertparameters.CertifiedContainerRhel7OpenJdk},
+			[]string{})
 		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
 
 		By("Start test")
@@ -101,7 +104,8 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 			[]string{netparameters.TestNetworkingNameSpace},
 			[]string{netparameters.TestPodLabel},
 			[]string{affiliatedcertparameters.UncertifiedContainerFooBar,
-				affiliatedcertparameters.CertifiedContainerNodeJsUbi})
+				affiliatedcertparameters.CertifiedContainerNodeJsUbi},
+			[]string{})
 		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
 
 		By("Start test")
