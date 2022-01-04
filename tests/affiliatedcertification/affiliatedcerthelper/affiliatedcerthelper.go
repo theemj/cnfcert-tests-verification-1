@@ -32,7 +32,8 @@ func SetUpAndRunContainerCertTest(containersInfo []string, expectedResult string
 	err = nethelper.ValidateIfReportsAreValid(
 		affiliatedcertparameters.TestCaseContainerAffiliatedCertName,
 		expectedResult)
-	if expectedResult == globalparameters.TestCaseFailed {
+
+	if expectedResult == "failed" {
 		Expect(err).To(HaveOccurred(), "Error validating test reports")
 	} else {
 		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
