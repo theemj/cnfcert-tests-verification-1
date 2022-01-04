@@ -23,27 +23,9 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 
 	// 46562
 	It("one container to test, container is certified", func() {
-		By("Add container information to " + globalparameters.DefaultTnfConfigFileName)
-		err := globalhelper.DefineTnfConfig(
-			[]string{netparameters.TestNetworkingNameSpace},
-			[]string{netparameters.TestPodLabel},
-			[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi})
-		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
-
-		By("Start test")
-		err = globalhelper.LaunchTests(
-			[]string{affiliatedcertparameters.AffiliatedCertificationTestSuiteName},
-			affiliatedcertparameters.TestCaseContainerSkipRegEx,
-		)
-		Expect(err).ToNot(HaveOccurred(), "Error running "+
-			affiliatedcertparameters.AffiliatedCertificationTestSuiteName+" test")
-
-		By("Verify test case status in Junit and Claim reports")
-		err = nethelper.ValidateIfReportsAreValid(
-			affiliatedcertparameters.TestCaseContainerAffiliatedCertName,
-			globalparameters.TestCasePassed)
-		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
-	})
+		err := affiliatedcerthelper.SetUpAndRunContainerCertTest(
+				[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi}, globalparameters.TestCasePassed)
+		Expect(err).ToNot(HaveOccurred(), "Error running test")
 
 	// 46563
 	It("one container to test, container is not certified [negative]", func() {
