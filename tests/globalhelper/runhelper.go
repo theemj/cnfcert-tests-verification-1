@@ -48,5 +48,8 @@ func LaunchTests(testSuites []string, skipRegEx string) error {
 	cmd.Args = append(cmd.Args, testArgs...)
 	cmd.Dir = Configuration.General.TnfRepoPath
 
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
 	return cmd.Run()
 }
