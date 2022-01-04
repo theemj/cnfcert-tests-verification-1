@@ -30,7 +30,7 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 	It("one container to test, container is not certified [negative]", func() {
 		err := affiliatedcerthelper.SetUpAndRunContainerCertTest(
 			[]string{affiliatedcertparameters.UncertifiedContainerFooBar}, globalparameters.TestCaseFailed)
-		Expect(err).To(HaveOccurred())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	// 46564
@@ -46,7 +46,7 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 		err := affiliatedcerthelper.SetUpAndRunContainerCertTest(
 			[]string{affiliatedcertparameters.UncertifiedContainerFooBar,
 				affiliatedcertparameters.CertifiedContainerNodeJsUbi}, globalparameters.TestCaseFailed)
-		Expect(err).To(HaveOccurred())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	// 46566
