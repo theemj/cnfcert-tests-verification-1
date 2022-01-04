@@ -36,10 +36,9 @@ func SetUpAndRunContainerCertTest(containersInfo []string, expectedResult string
 		Expect(err).To(HaveOccurred(), "Error validating test reports")
 	} else {
 		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
-	}
-
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
