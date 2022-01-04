@@ -3,6 +3,7 @@ package tests
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcerthelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcertparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalhelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
@@ -24,8 +25,9 @@ var _ = Describe("Affiliated-certification container certification,", func() {
 	// 46562
 	It("one container to test, container is certified", func() {
 		err := affiliatedcerthelper.SetUpAndRunContainerCertTest(
-				[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi}, globalparameters.TestCasePassed)
+			[]string{affiliatedcertparameters.CertifiedContainerNodeJsUbi}, globalparameters.TestCasePassed)
 		Expect(err).ToNot(HaveOccurred(), "Error running test")
+	})
 
 	// 46563
 	It("one container to test, container is not certified [negative]", func() {
