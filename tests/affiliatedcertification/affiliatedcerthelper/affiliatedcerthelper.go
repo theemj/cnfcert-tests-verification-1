@@ -1,6 +1,8 @@
 package affiliatedcerthelper
 
 import (
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcertparameters"
@@ -33,7 +35,7 @@ func SetUpAndRunContainerCertTest(containersInfo []string, expectedResult string
 		affiliatedcertparameters.TestCaseContainerAffiliatedCertName,
 		expectedResult)
 
-	if expectedResult == globalparameters.TestCaseFailed {
+	if strings.Compare(expectedResult, globalparameters.TestCaseFailed) == 0 {
 		Expect(err).To(HaveOccurred(), "Error validating test reports")
 		return nil
 	} else {
