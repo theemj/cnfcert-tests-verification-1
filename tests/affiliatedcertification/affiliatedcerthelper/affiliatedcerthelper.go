@@ -27,23 +27,22 @@ func SetUpAndRunContainerCertTest(containersInfo []string, expectedResult string
 		[]string{affiliatedcertparameters.AffiliatedCertificationTestSuiteName},
 		affiliatedcertparameters.TestCaseContainerSkipRegEx,
 	)
-	Expect(err).ToNot(HaveOccurred(), "Error running "+
-		affiliatedcertparameters.AffiliatedCertificationTestSuiteName+" test")
+	if strings.Compare(expectedResult, globalparameters.TestCaseFailed) == 0 {
+		Expect(err).To(HaveOccurred(), "Error running "+
+			affiliatedcertparameters.AffiliatedCertificationTestSuiteName+" test")
+	} else {
+		Expect(err).ToNot(HaveOccurred(), "Error running "+
+			affiliatedcertparameters.AffiliatedCertificationTestSuiteName+" test")
+	}
 
 	By("Verify test case status in Junit and Claim reports")
 	err = nethelper.ValidateIfReportsAreValid(
 		affiliatedcertparameters.TestCaseContainerAffiliatedCertName,
 		expectedResult)
+	Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
 
-	if strings.Compare(expectedResult, globalparameters.TestCaseFailed) == 0 {
-		Expect(err).To(HaveOccurred(), "Error validating test reports")
-		return nil
-	}
-	if strings.Compare(expectedResult, globalparameters.TestCasePassed) == 0 || strings.Compare(expectedResult, globalparameters.TestCaseSkipped) == 0 {
-		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil
