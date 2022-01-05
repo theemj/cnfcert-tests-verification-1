@@ -38,7 +38,8 @@ func SetUpAndRunContainerCertTest(containersInfo []string, expectedResult string
 	if strings.Compare(expectedResult, globalparameters.TestCaseFailed) == 0 {
 		Expect(err).To(HaveOccurred(), "Error validating test reports")
 		return nil
-	} else {
+	}
+	if strings.Compare(expectedResult, globalparameters.TestCasePassed) == 0 || strings.Compare(expectedResult, globalparameters.TestCaseSkipped) == 0 {
 		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
 		if err != nil {
 			return err
