@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcerthelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcertparameters"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/globalhelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/execute"
 )
@@ -57,10 +58,39 @@ var _ = Describe("Affiliated-certification operator certification,", func() {
 	})
 
 	// 46699
-	It("certifiedoperatorinfo field does not exist in tnf_config [skip]", func() {
-		err := affiliatedcerthelper.SetUpAndRunOperatorCertTest(
-			[]string{}, globalparameters.TestCaseSkipped)
+	It("Affiliated-certification one operator to test, operator does not belong to certified-operators organization"+
+		" in Red Hat catalog [skip]", func() {
+		By("Add container information to " + globalparameters.DefaultTnfConfigFileName)
+		err := globalhelper.DefineTnfConfig(
+			[]string{"tnf"},
+			[]string{affiliatedcertparameters.TestPodLabel},
+			[]string{},
+			[]string{})
 		Expect(err).ToNot(HaveOccurred())
+
+		m := make(map[string]string)
+		m["test-network-function.com/operator"] = "target"
+
+		By("Label operator to be certified")
+		err = affiliatedcerthelper.AddLabelToInstalledCSV(
+			"performance-addon-operator",
+			"tnf",
+			m)
+
+		Expect(err).ToNot(HaveOccurred())
+
+		err = globalhelper.LaunchTests(
+			[]string{affiliatedcertparameters.AffiliatedCertificationTestSuiteName},
+			affiliatedcertparameters.TestCaseOperatorSkipRegEx,
+		)
+		Expect(err).ToNot(HaveOccurred())
+
+		By("Verify test case status in Junit and Claim reports")
+		err = globalhelper.ValidateIfReportsAreValid(
+			affiliatedcertparameters.TestCaseOperatorAffiliatedCertName,
+			globalparameters.TestCaseSkipped)
+		Expect(err).ToNot(HaveOccurred(), "Error validating test reports")
+
 	})
 
 	// 46700
