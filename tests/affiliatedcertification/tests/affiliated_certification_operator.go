@@ -8,50 +8,24 @@ import (
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalhelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/execute"
-	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/namespaces"
-	utils "github.com/test-network-function/cnfcert-tests-verification/tests/utils/operator"
 )
 
 var _ = Describe("Affiliated-certification operator certification,", func() {
 
 	var (
 		installedLabeledOperators []affiliatedcertparameters.OperatorLabelInfo
+		testingNamespaces         []string
 	)
 
 	execute.BeforeAll(func() {
-		By("Add container information to " + globalparameters.DefaultTnfConfigFileName)
-
-		err := globalhelper.DefineTnfConfig(
-			[]string{affiliatedcertparameters.TestCertificationNameSpace},
-			[]string{affiliatedcertparameters.TestPodLabel},
-			[]string{},
-			[]string{})
-
-		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
-
-		By("Create namespace")
-		err = namespaces.Create(affiliatedcertparameters.TestCertificationNameSpace, globalhelper.APIClient)
-		Expect(err).ToNot(HaveOccurred(), "Error creating namespace")
-
-		By("Deploy OperatorGroup if not already deployed")
-		if affiliatedcerthelper.IsOperatorGroupInstalled(affiliatedcertparameters.OperatorGroupName,
-			affiliatedcertparameters.TestCertificationNameSpace) != nil {
-			err = affiliatedcerthelper.DeployOperatorGroup(affiliatedcertparameters.TestCertificationNameSpace,
-				utils.DefineOperatorGroup(affiliatedcertparameters.OperatorGroupName,
-					affiliatedcertparameters.TestCertificationNameSpace,
-					[]string{affiliatedcertparameters.TestCertificationNameSpace}),
-			)
-			Expect(err).ToNot(HaveOccurred(), "Error deploying operatorgroup")
-		}
-
 		By("Deploy operators for testing if not already deployed")
 		// falcon-operator: not in certified-operators group in catalog, for negative test cases
-		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.UncertifiedOperatorPrefixFalcon,
 			affiliatedcertparameters.UncertifiedOperatorDeploymentFalcon) != nil {
-			err = affiliatedcerthelper.DeployAndVerifyOperatorSubscription(
+			err := affiliatedcerthelper.DeployOperatorSubscription(
 				"falcon-operator",
 				"alpha",
-				affiliatedcertparameters.TestCertificationNameSpace,
+				affiliatedcertparameters.UncertifiedOperatorPrefixFalcon,
 				affiliatedcertparameters.CommunityOperatorGroup,
 				affiliatedcertparameters.OperatorSourceNamespace,
 			)
@@ -59,27 +33,30 @@ var _ = Describe("Affiliated-certification operator certification,", func() {
 				affiliatedcertparameters.UncertifiedOperatorPrefixFalcon)
 			// confirm that operator is installed and ready
 			Eventually(func() bool {
-				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.UncertifiedOperatorPrefixFalcon,
 					affiliatedcertparameters.UncertifiedOperatorDeploymentFalcon)
 
 				return err == nil
 			}, affiliatedcertparameters.Timeout, affiliatedcertparameters.PollingInterval).Should(Equal(true),
 				affiliatedcertparameters.UncertifiedOperatorPrefixFalcon+" is not ready.")
 		}
+		// add namespace to array to be added to tnf config file
+		testingNamespaces = append(testingNamespaces, affiliatedcertparameters.UncertifiedOperatorPrefixFalcon)
+
 		// add falcon operator info to array for cleanup in AfterEach
 		installedLabeledOperators = append(installedLabeledOperators, affiliatedcertparameters.OperatorLabelInfo{
 			OperatorPrefix: affiliatedcertparameters.UncertifiedOperatorPrefixFalcon,
-			Namespace:      affiliatedcertparameters.TestCertificationNameSpace,
+			Namespace:      affiliatedcertparameters.UncertifiedOperatorPrefixFalcon,
 			Label:          affiliatedcertparameters.OperatorLabel,
 		})
 
 		// crunchy-postgres-operator: in certified-operators group and version is certified
-		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.CertifiedOperatorPrefixPostgres,
 			affiliatedcertparameters.CertifiedOperatorDeploymentPostgres) != nil {
-			err = affiliatedcerthelper.DeployAndVerifyOperatorSubscription(
+			err := affiliatedcerthelper.DeployOperatorSubscription(
 				"crunchy-postgres-operator",
 				"v5",
-				affiliatedcertparameters.TestCertificationNameSpace,
+				affiliatedcertparameters.CertifiedOperatorPrefixPostgres,
 				affiliatedcertparameters.CertifiedOperatorGroup,
 				affiliatedcertparameters.OperatorSourceNamespace,
 			)
@@ -87,27 +64,30 @@ var _ = Describe("Affiliated-certification operator certification,", func() {
 				affiliatedcertparameters.CertifiedOperatorPrefixPostgres)
 			// confirm that operator is installed and ready
 			Eventually(func() bool {
-				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.CertifiedOperatorPrefixPostgres,
 					affiliatedcertparameters.CertifiedOperatorDeploymentPostgres)
 
 				return err == nil
 			}, affiliatedcertparameters.Timeout, affiliatedcertparameters.PollingInterval).Should(Equal(true),
 				affiliatedcertparameters.CertifiedOperatorPrefixPostgres+" is not ready.")
 		}
+		// add namespace to array to be added to tnf config file
+		testingNamespaces = append(testingNamespaces, affiliatedcertparameters.CertifiedOperatorPrefixPostgres)
+
 		// add postgres operator info to array for cleanup in AfterEach
 		installedLabeledOperators = append(installedLabeledOperators, affiliatedcertparameters.OperatorLabelInfo{
 			OperatorPrefix: affiliatedcertparameters.CertifiedOperatorPrefixPostgres,
-			Namespace:      affiliatedcertparameters.TestCertificationNameSpace,
+			Namespace:      affiliatedcertparameters.CertifiedOperatorPrefixPostgres,
 			Label:          affiliatedcertparameters.OperatorLabel,
 		})
 
 		// datadog-operator-certified: in certified-operatos group and version is certified
-		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+		if affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.CertifiedOperatorPrefixDatadog,
 			affiliatedcertparameters.CertifiedOperatorDeploymentDatadog) != nil {
-			err = affiliatedcerthelper.DeployAndVerifyOperatorSubscription(
+			err := affiliatedcerthelper.DeployOperatorSubscription(
 				"datadog-operator-certified",
 				"alpha",
-				affiliatedcertparameters.TestCertificationNameSpace,
+				affiliatedcertparameters.CertifiedOperatorPrefixDatadog,
 				affiliatedcertparameters.CertifiedOperatorGroup,
 				affiliatedcertparameters.OperatorSourceNamespace,
 			)
@@ -115,19 +95,32 @@ var _ = Describe("Affiliated-certification operator certification,", func() {
 				affiliatedcertparameters.CertifiedOperatorPrefixDatadog)
 			// confirm that operator is installed and ready
 			Eventually(func() bool {
-				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.TestCertificationNameSpace,
+				err = affiliatedcerthelper.IsOperatorInstalled(affiliatedcertparameters.CertifiedOperatorPrefixDatadog,
 					affiliatedcertparameters.CertifiedOperatorDeploymentDatadog)
 
 				return err == nil
 			}, affiliatedcertparameters.Timeout, affiliatedcertparameters.PollingInterval).Should(Equal(true),
 				affiliatedcertparameters.CertifiedOperatorPrefixDatadog+" is not ready.")
 		}
+		// add namespace to array to be added to tnf config file
+		testingNamespaces = append(testingNamespaces, affiliatedcertparameters.CertifiedOperatorPrefixDatadog)
+
 		// add datadog operator info to array for cleanup in AfterEach
 		installedLabeledOperators = append(installedLabeledOperators, affiliatedcertparameters.OperatorLabelInfo{
 			OperatorPrefix: affiliatedcertparameters.CertifiedOperatorPrefixDatadog,
-			Namespace:      affiliatedcertparameters.TestCertificationNameSpace,
+			Namespace:      affiliatedcertparameters.CertifiedOperatorPrefixDatadog,
 			Label:          affiliatedcertparameters.OperatorLabel,
 		})
+
+		By("Add container information to " + globalparameters.DefaultTnfConfigFileName)
+
+		err := globalhelper.DefineTnfConfig(
+			testingNamespaces,
+			[]string{affiliatedcertparameters.TestPodLabel},
+			[]string{},
+			[]string{})
+
+		Expect(err).ToNot(HaveOccurred(), "Error defining tnf config file")
 	})
 
 	AfterEach(func() {

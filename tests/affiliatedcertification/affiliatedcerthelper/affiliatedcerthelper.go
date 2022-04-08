@@ -12,6 +12,7 @@ import (
 	"github.com/test-network-function/cnfcert-tests-verification/tests/affiliatedcertification/affiliatedcertparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalhelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/namespaces"
 	utils "github.com/test-network-function/cnfcert-tests-verification/tests/utils/operator"
 )
 
@@ -185,17 +186,30 @@ func updateCsv(namespace string, csv *v1alpha1.ClusterServiceVersion) error {
 }
 
 // Deploys an operator and returns when its deployment is confirmed to exist.
-func DeployAndVerifyOperatorSubscription(operatorPackage, chanel, namespace, group,
+func DeployOperatorSubscription(operatorPackage, chanel, ns, group,
 	sourceNamespace string) error {
+
+	err := namespaces.Create(ns, globalhelper.APIClient)
+	if err != nil {
+		return fmt.Errorf("Error creating namespace "+ns+": %w", err)
+	}
+
+	err = DeployOperatorGroup(affiliatedcertparameters.TestCertificationNameSpace,
+		utils.DefineOperatorGroup(operatorPackage+"-operatorgroup", ns, []string{ns}),
+	)
+	if err != nil {
+		return fmt.Errorf("Error deploying operatorgroup for "+operatorPackage+": %w", err)
+	}
+
 	operatorSubscription := utils.DefineSubscription(
 		operatorPackage+"-subscription",
-		namespace,
+		ns,
 		chanel,
 		operatorPackage,
 		group,
 		sourceNamespace)
 
-	err := DeployOperator(namespace, operatorSubscription)
+	err = DeployOperator(ns, operatorSubscription)
 
 	if err != nil {
 		return fmt.Errorf("Error deploying operator "+operatorPackage+": %w", err)
