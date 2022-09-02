@@ -34,7 +34,7 @@ func LaunchTests(testCaseName string, tcNameForReport string) error {
 	}
 
 	if len(testCaseName) > 0 {
-		testArgs = append(testArgs, "-f")
+		testArgs = append(testArgs, "-l")
 		testArgs = append(testArgs, testCaseName)
 		glog.V(5).Info(fmt.Sprintf("add test suite %s", testCaseName))
 	} else {
