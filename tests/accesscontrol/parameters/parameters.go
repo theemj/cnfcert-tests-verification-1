@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Timeout = 5 * time.Minute
+	Timeout = 10 * time.Minute
 )
 
 var (
